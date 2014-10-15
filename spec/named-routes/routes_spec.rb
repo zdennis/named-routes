@@ -37,6 +37,56 @@ module NamedRoutes
         end
       end
 
+      context "generating route methods" do
+        def routes_class
+          @routes_class ||= begin
+            routes_class = Class.new(NamedRoutes::Routes)
+            routes_class.route(:root, "/")
+            routes_class.route(:decision_stream, "/decision-streams/:stream_id")
+            routes_class
+          end
+        end
+
+        context "relative path helper methods" do
+          it "return relative paths" do
+            routes_class.host = "example.com"
+            expect(routes_class.root_path).to eq "/"
+            expect(routes_class.decision_stream_path(:stream_id => 12)).to eq "/decision-streams/12"
+          end
+        end
+
+        context "full url helper methods" do
+          it "raises an error when a host hasn't been set" do
+            routes_class.host = nil
+            expect {
+                routes_class.root_url
+            }.to raise_error(NamedRoutes::Error, "A :host must be set in order to generate a URL")
+          end
+
+          it "return full URLs when a host is supplied (defaulting to HTTP)" do
+            routes_class.host = "example.com"
+            expect(routes_class.root_url).to eq "http://example.com/"
+            expect(routes_class.decision_stream_url(:stream_id => 12)).to eq "http://example.com/decision-streams/12"
+          end
+
+          it "return full URLs when the scheme is specified)" do
+            routes_class.host = "example.com"
+            routes_class.scheme = "https"
+            expect(routes_class.root_url).to eq "https://example.com/"
+
+            routes_class.scheme = "http"
+            expect(routes_class.root_url).to eq "http://example.com/"
+          end
+
+          it "includes port when set" do
+            routes_class.host = "example.com"
+            routes_class.scheme = "https"
+            routes_class.port = 9292
+            expect(routes_class.root_url).to eq "https://example.com:9292/"
+          end
+        end
+      end
+
       context "when a prefix is given" do
         def routes_class
           @routes_class ||= begin

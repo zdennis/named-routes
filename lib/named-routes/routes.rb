@@ -1,8 +1,10 @@
 require 'active_support/core_ext/hash/indifferent_access'
 
 module NamedRoutes
+  class Error < ::StandardError ; end
+
   class Routes
-    class_attribute :host, :prefix
+    class_attribute :host, :prefix, :scheme, :port
 
     module Definition
       extend NamedRoutes::Concern
@@ -34,6 +36,16 @@ module NamedRoutes
           define_method name do |*args|
             self.class.eval(full_definition, [args.first].compact.first || {})
           end
+          define_method "#{name}_path" do |*args|
+            send(name, *args)
+          end
+          define_method "#{name}_url" do |*args|
+            if self.class.host.nil?
+              raise Error, "A :host must be set in order to generate a URL"
+            end
+            SchemedUri.new(self, self.class.scheme || "http").send name, *args
+          end
+
           yield full_definition if block_given?
           full_definition
         end
