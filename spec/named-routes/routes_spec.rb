@@ -80,9 +80,16 @@ module NamedRoutes
 
           it "includes port when set" do
             routes_class.host = "example.com"
-            routes_class.scheme = "https"
             routes_class.port = 9292
-            expect(routes_class.root_url).to eq "https://example.com:9292/"
+            expect(routes_class.root_url).to eq "http://example.com:9292/"
+          end
+
+          it "sets the base uri directly" do
+            routes_class.uri = URI.parse("https://foobar.com/")
+            expect(routes_class.root_url).to eq "https://foobar.com/"
+
+            routes_class.uri = URI.parse("http://foobar.com:9292/")
+            expect(routes_class.root_url).to eq "http://foobar.com:9292/"
           end
         end
       end

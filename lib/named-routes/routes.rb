@@ -6,6 +6,12 @@ module NamedRoutes
   class Routes
     class_attribute :host, :prefix, :scheme, :port
 
+    def self.uri=(uri)
+      self.host = uri.host
+      self.port = uri.port
+      self.scheme = uri.scheme
+    end
+
     module Definition
       extend NamedRoutes::Concern
 
