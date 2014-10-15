@@ -38,9 +38,29 @@ module NamedRoutes
 
         def route(name, definition, include_prefix=true)
           full_definition = eval(definition, {}, :prefix => include_prefix)
-          _defined_routes[name.to_s] = full_definition
+          (_defined_routes[name.to_s] ||= []) << full_definition
           define_method name do |*args|
-            self.class.eval(full_definition, [args.first].compact.first || {})
+            #
+            # This does an exact match on the when determining which route
+            # definition to use or it will fall back to a best match. It's all
+            # based on the defined params and the passed in params.
+            #
+            best_match = [full_definition, -1]
+            params_to_match = (args.first || {}).keys.map(&:to_s).sort
+            matching_definition = self.class.defined_routes[name.to_s].detect do |path|
+              if params_to_match == path.scan(/:(\w+)/).flatten.sort
+                path
+              else
+                matched_count = params_to_match.reduce(0) do |count,param|
+                  count += 1 if path =~ /:#{param}/
+                  count
+                end
+                best_match = [path, matched_count] if matched_count > best_match.last
+                nil
+              end
+            end
+            matching_definition ||= best_match.first
+            self.class.eval(matching_definition, [args.first].compact.first || {})
           end
           define_method "#{name}_path" do |*args|
             send(name, *args)

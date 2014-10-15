@@ -47,6 +47,20 @@ module NamedRoutes
           end
         end
 
+        context "re-using method name with different arguments" do
+          before do
+            routes_class.route(:users, "/users")
+            routes_class.route(:users, "/users/:id/foo/:bar")
+            routes_class.route(:users, "/users/:id")
+          end
+
+          it "picks the best match" do
+            expect(routes_class.users_path).to eq "/users"
+            expect(routes_class.users_path(id: 99)).to eq "/users/99"
+            # expect(routes_class.users_path(id: 99, bar: 45)).to eq "/users/99/45"
+          end
+        end
+
         context "relative path helper methods" do
           it "return relative paths" do
             routes_class.host = "example.com"
@@ -235,9 +249,9 @@ module NamedRoutes
     describe ".as_json" do
       it "returns a hash of all of the route methods as keys and the definions as values for the instance" do
         expect(routes_class.as_json).to eq(
-          "root" => "/",
-          "current_user_category_top_choices" => "/current-user/:category/top-choices",
-          "decision_stream" => "/decision-streams/:stream_id"
+          "root" => ["/"],
+          "current_user_category_top_choices" => ["/current-user/:category/top-choices"],
+          "decision_stream" => ["/decision-streams/:stream_id"]
         )
       end
     end
@@ -245,9 +259,9 @@ module NamedRoutes
     describe "#as_json" do
       it "returns a hash of all of the route methods as keys and the definions as values" do
         expect(routes_class.instance.as_json).to eq(
-          "root" => "/",
-          "current_user_category_top_choices" => "/current-user/:category/top-choices",
-          "decision_stream" => "/decision-streams/:stream_id"
+          "root" => ["/"],
+          "current_user_category_top_choices" => ["/current-user/:category/top-choices"],
+          "decision_stream" => ["/decision-streams/:stream_id"]
         )
       end
     end
