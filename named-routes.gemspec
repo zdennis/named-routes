@@ -1,16 +1,16 @@
 Gem::Specification.new do |s|
-  s.name = %q{named-routes}
+  s.name = %q{ag-named-routes}
   s.version = File.read("#{File.dirname(__FILE__)}/VERSION").strip
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Brian Takita"]
+  s.authors = ["Brian Takita", "Zach Dennis"]
   s.date = %q{2011-01-19}
-  s.email = %q{brian.takita@gmail.com}
+  s.email = %q{brian.takita@gmail.com zach.dennis@gmail.com}
   # Man files are required because they are ignored by git
   s.files              = `git ls-files`.split("\n")
   s.test_files         = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.require_paths      = ["lib"]
-  s.homepage = %q{http://github.com/btakita/named-routes}
+  s.homepage = %q{http://github.com/zdennis/named-routes}
   s.rdoc_options = ["--main", "README.md", "--inline-source", "--line-numbers"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.7}
